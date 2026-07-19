@@ -19,19 +19,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +80,7 @@ fun PositionEditor(
     onClear: () -> Unit,
     onRecognize: (Uri) -> Unit,
     onLoadFile: (Uri) -> String?,
+    onImportText: (String) -> String?,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -80,9 +89,14 @@ fun PositionEditor(
     ) { uri -> uri?.let(onRecognize) }
     var showImage by remember { mutableStateOf(false) }
     var importError by remember { mutableStateOf(false) }
+    var showPaste by remember { mutableStateOf(false) }
     val fileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument(),
     ) { uri -> if (uri != null) importError = (onLoadFile(uri) == null) }
+
+    if (showPaste) {
+        PasteDialog(onImportText = onImportText, onDismiss = { showPaste = false })
+    }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
         // safeDrawingPadding: a tartalom ne kerüljön a státusz-/navigációs sáv
@@ -167,32 +181,29 @@ fun PositionEditor(
                 onBrush = onBrush,
             )
 
-            // Ki lép + nézet-forgatás (ikon + pici felirat, mint az app többi része)
+            // Egy sorban: oldalválasztó (paraszt-ikonok) + forgatás + betöltések + üres
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                SegChoice(
-                    options = listOf(
-                        Piece.WHITE to stringResource(R.string.white),
-                        Piece.BLACK to stringResource(R.string.black),
-                    ),
-                    selected = edit.sideToMove,
-                    onSelect = onSide,
-                    modifier = Modifier.weight(1f),
+                SideButton(
+                    glyph = pieceChar(Piece.of(Piece.WHITE, Piece.PAWN)),
+                    label = stringResource(R.string.white),
+                    selected = edit.sideToMove == Piece.WHITE,
+                    onClick = { onSide(Piece.WHITE) },
+                )
+                SideButton(
+                    glyph = pieceChar(Piece.of(Piece.BLACK, Piece.PAWN)),
+                    label = stringResource(R.string.black),
+                    selected = edit.sideToMove == Piece.BLACK,
+                    onClick = { onSide(Piece.BLACK) },
                 )
                 LabeledIconButton(
                     icon = Icons.Filled.SwapVert,
                     label = stringResource(R.string.flip_board),
                     onClick = onFlip,
                 )
-            }
-
-            // Feltöltés-akciók: felismerés / fájl / üres — ikon + pici felirat
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-            ) {
                 LabeledIconButton(
                     icon = Icons.Filled.PhotoCamera,
                     label = stringResource(R.string.editor_lbl_recognize),
@@ -206,6 +217,12 @@ fun PositionEditor(
                         importError = false
                         fileLauncher.launch(arrayOf("*/*"))
                     },
+                    enabled = !recognizing,
+                )
+                LabeledIconButton(
+                    icon = Icons.Filled.ContentPaste,
+                    label = stringResource(R.string.editor_lbl_string),
+                    onClick = { showPaste = true },
                     enabled = !recognizing,
                 )
                 LabeledIconButton(
@@ -270,6 +287,64 @@ fun PositionEditor(
             }
         }
     }
+}
+
+/** Oldalválasztó gomb: paraszt-glif + pici felirat; a kiválasztott kiemelve. */
+@Composable
+private fun SideButton(glyph: String, label: String, selected: Boolean, onClick: () -> Unit) {
+    val labelColor = if (selected) MaterialTheme.colorScheme.primary
+    else LocalContentColor.current.copy(alpha = 0.5f)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+        modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+    ) {
+        Text(glyph, fontSize = 22.sp, color = MaterialTheme.colorScheme.onSurface)
+        Text(label, fontSize = 9.sp, color = labelColor, maxLines = 1)
+    }
+}
+
+/** FEN/PGN szöveg beillesztő párbeszéd (a vágólapról előtöltve). */
+@Composable
+private fun PasteDialog(onImportText: (String) -> String?, onDismiss: () -> Unit) {
+    val clip = LocalClipboardManager.current
+    var text by remember { mutableStateOf(clip.getText()?.text ?: "") }
+    var error by remember { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.paste_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.paste_hint), style = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it; error = false },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 6,
+                )
+                if (error) {
+                    Text(
+                        stringResource(R.string.paste_fail),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (onImportText(text) == null) error = true else onDismiss()
+            }) { Text(stringResource(R.string.editor_load)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        },
+    )
 }
 
 @Composable

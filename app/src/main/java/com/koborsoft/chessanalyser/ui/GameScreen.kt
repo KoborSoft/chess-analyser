@@ -292,6 +292,7 @@ fun GameScreen(
             onClear = viewModel::clearEditBoard,
             onRecognize = viewModel::recognizeFromImage,
             onLoadFile = viewModel::importFile,
+            onImportText = viewModel::importText,
             onConfirm = viewModel::confirmEdit,
             onCancel = viewModel::cancelEdit,
         )

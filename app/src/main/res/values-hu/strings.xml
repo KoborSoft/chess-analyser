@@ -33,7 +33,10 @@
     <string name="editor_clear">Üres tábla</string>
     <string name="editor_load">Betöltés</string>
     <string name="editor_loadfile">Fájl betöltése (PGN / FEN)</string>
-    <string name="editor_lbl_recognize">Felismerés</string>
+    <string name="editor_lbl_recognize">Kép</string>
+    <string name="editor_lbl_string">String</string>
+    <string name="paste_title">String beillesztése (FEN / PGN)</string>
+    <string name="paste_hint">Illessz be egy FEN sztringet (egy állás) vagy egy PGN-t (teljes játszma).</string>
     <string name="editor_lbl_file">Fájl</string>
     <string name="editor_lbl_clear">Üres</string>
     <string name="paste_fail">Nem sikerült értelmezni: nem érvényes FEN vagy PGN.</string>
