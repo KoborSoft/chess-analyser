@@ -13,13 +13,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -28,15 +26,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -172,7 +167,7 @@ fun PositionEditor(
                 onBrush = onBrush,
             )
 
-            // Ki lép + nézet-forgatás
+            // Ki lép + nézet-forgatás (ikon + pici felirat, mint az app többi része)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -186,41 +181,39 @@ fun PositionEditor(
                     onSelect = onSide,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = onFlip) {
-                    Icon(Icons.Filled.SwapVert, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(stringResource(R.string.flip_board))
-                }
+                LabeledIconButton(
+                    icon = Icons.Filled.SwapVert,
+                    label = stringResource(R.string.flip_board),
+                    onClick = onFlip,
+                )
             }
 
-            // Feltöltés: felismerés képről / beillesztés (FEN/PGN) / üres tábla
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
+            // Feltöltés-akciók: felismerés / fájl / üres — ikon + pici felirat
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                LabeledIconButton(
+                    icon = Icons.Filled.PhotoCamera,
+                    label = stringResource(R.string.editor_lbl_recognize),
                     onClick = { galleryLauncher.launch("image/*") },
                     enabled = !recognizing,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Filled.PhotoCamera, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.editor_recognize))
-                }
-                OutlinedButton(onClick = onClear, enabled = !recognizing) {
-                    Icon(Icons.Filled.Delete, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.editor_clear))
-                }
-            }
-            OutlinedButton(
-                onClick = {
-                    importError = false
-                    fileLauncher.launch(arrayOf("*/*"))
-                },
-                enabled = !recognizing,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Filled.FileOpen, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.editor_loadfile))
+                )
+                LabeledIconButton(
+                    icon = Icons.Filled.FileOpen,
+                    label = stringResource(R.string.editor_lbl_file),
+                    onClick = {
+                        importError = false
+                        fileLauncher.launch(arrayOf("*/*"))
+                    },
+                    enabled = !recognizing,
+                )
+                LabeledIconButton(
+                    icon = Icons.Filled.Delete,
+                    label = stringResource(R.string.editor_lbl_clear),
+                    onClick = onClear,
+                    enabled = !recognizing,
+                )
             }
             if (importError) {
                 Text(
@@ -257,22 +250,23 @@ fun PositionEditor(
                 )
             }
 
-            // Fix alsó gombsor
+            // Fix alsó gombsor: Mégse / Betöltés — ikon + pici felirat
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                TextButton(onClick = onCancel) {
-                    Icon(Icons.Filled.Close, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(stringResource(R.string.cancel))
-                }
-                Button(onClick = onConfirm) {
-                    Icon(Icons.Filled.Check, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.editor_load))
-                }
+                LabeledIconButton(
+                    icon = Icons.Filled.Close,
+                    label = stringResource(R.string.cancel),
+                    onClick = onCancel,
+                )
+                LabeledIconButton(
+                    icon = Icons.Filled.Check,
+                    label = stringResource(R.string.editor_load),
+                    onClick = onConfirm,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
         }
     }

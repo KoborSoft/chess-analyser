@@ -861,7 +861,7 @@ private fun GameSettingsDialog(
  * közös ([tint]); letiltva mindkettő elhalványul.
  */
 @Composable
-private fun LabeledIconButton(
+fun LabeledIconButton(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
