@@ -144,7 +144,9 @@ Jelmagyarázat: `[ ]` teendő · `[x]` kész · `[~]` folyamatban
 - [x] Release build alapkonfiguráció (minify + proguard)
 - [ ] Aláírókulcs és aláírt App Bundle készítése
 - [ ] Adatvédelmi nyilatkozat szövege (nem gyűjtünk adatot)
-- [ ] Forráskód közzététele (GPLv3-kötelezettség a Stockfish miatt)
+- [x] Forráskód közzététele (GPLv3-kötelezettség a Stockfish miatt):
+      publikus repó — https://github.com/koborsoft/chess-analyser (LICENSE:
+      GPLv3; a súgó és a licenc-képernyő is erre a címre mutat)
 - [ ] Hangeffektek (jogtiszta), beállítási lehetőséggel
 
 ## 6. Jövőbeli feladatok (a felhasználó intézi)
