@@ -333,3 +333,27 @@
   magas checkert ad, a harmonikus nem. A checker mezőn belüli mintavétele
   ritkított a sebességért. Telefonon a felhasználó pontos képe: helyes,
   szabályos állás, ~210 ms.
+
+## 2026-07-19 — Felismerés-tájolás: „a lépő van alul" szabály
+
+**Döntések:**
+
+- **A befotózott táblán a LÉPŐ fél van alul** — ez a felismerés tájolási
+  szabálya. A CNN pixeleket olvas (nem mezőket), ezért a szemszöget alkalmazni
+  KELL a mező-hozzárendeléshez: fehér jön → a kép teteje a 8. sor; fekete jön →
+  a beolvasott (fehér-értelmezésű) táblát 180°-kal elforgatjuk (a bábuk a valós
+  soraikra kerülnek, pl. felül lévő fehér paraszt → 2. kezdősor).
+- **Két „forgatás" fogalom szétválasztva és egységesítve:**
+  - *Nézet-forgatás* (kijelzés): a másik szemszögből mutat, a bábukat nem mozgatja.
+    A fő tábla „Forgatás"-a ÉS mostantól a szerkesztő „Forgatás" gombja is EZ.
+  - *Állás-forgatás* (a pozíció tényleges 180°-a): a szerkesztőben a „Ki lép"
+    (Világos/Sötét) váltó csinálja — ez a tájolás vezérlője (a szabály szerint a
+    lépő kerül alulra), a bábuk a másik szemszög szerinti valós mezőikre kerülnek.
+- **A betöltött állás a fő táblán is a lépő szemszögéből** jelenik meg
+  (`boardFlipped = sideToMove == BLACK`), hogy egyezzen a fotóval és a szerkesztővel.
+
+**Tanulság:**
+
+- A „fekete jön esetén elég a nézetet fordítani" intuíció a LÁTVÁNYRA igaz, de a
+  pozícióra nem: a nézet nem rendel mezőket, a kamerából jövő raszter-olvasatot
+  ténylegesen át kell forgatni, különben a bábuk rossz soron állnának.

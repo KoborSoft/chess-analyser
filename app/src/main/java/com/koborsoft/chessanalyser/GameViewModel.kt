@@ -257,12 +257,23 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 // A felismert állás nem feltétlenül szabályos — szerkeszthető
                 // előnézetbe töltjük, ahol a felhasználó javíthatja.
-                val board = placementToBoard(recog.placement)
+                // A CNN a képet fehér-szemszögűként olvassa (a kép teteje = 8. sor).
+                // Feltételezés: a befotózott táblán a LÉPŐ fél van alul. Ezért ha
+                // fekete lép, a képet fekete szemszögből kell értelmezni: a beolvasott
+                // táblát 180°-kal elforgatjuk (a bábuk a valós soraikra kerülnek),
+                // a nézet pedig fekete-szemszögre áll — így a szerkesztő a fotóval egyezik.
+                var board = placementToBoard(recog.placement)
                 // Bizonytalan mezők (display k = i*8+c) → tábla-mező ((7-i)*8+c).
-                val uncertain = buildSet {
+                var uncertain = buildSet {
                     for (i in 0 until 8) for (c in 0 until 8) {
                         if (recog.confidences[i * 8 + c] < 0.55f) add((7 - i) * 8 + c)
                     }
+                }
+                if (sideToMove == Piece.BLACK) {
+                    val rot = IntArray(64)
+                    for (sq in 0..63) rot[63 - sq] = board[sq]
+                    board = rot
+                    uncertain = uncertain.map { 63 - it }.toSet()
                 }
                 val sourceImage = scaled.asImageBitmap()
                 withContext(Dispatchers.Main) {
@@ -328,18 +339,34 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         _state.value = _state.value.copy(edit = e.copy(brush = piece))
     }
 
+    /**
+     * „Ki lép" váltása = a tájolás vezérlője (a szabály: a lépő van alul).
+     * Váltáskor a táblát 180°-kal átfordítjuk (a bábuk a másik szemszög szerinti
+     * valós mezőikre kerülnek), és a nézet is a lépő szemszögére áll — így a
+     * szerkesztő továbbra is a fotóval egyezik.
+     */
     fun setEditSide(color: Int) {
         val e = _state.value.edit ?: return
-        _state.value = _state.value.copy(edit = e.copy(sideToMove = color))
-    }
-
-    fun flipEditBoard() {
-        val e = _state.value.edit ?: return
-        // A tábla 180°-os forgatása: minden bábu az ellentétes mezőre kerül.
-        // A NÉZETET nem forgatjuk, különben a kettő kioltaná egymást.
+        if (color == e.sideToMove) return
         val rotated = IntArray(64)
         for (sq in 0..63) rotated[63 - sq] = e.board[sq]
-        _state.value = _state.value.copy(edit = e.copy(board = rotated))
+        _state.value = _state.value.copy(
+            edit = e.copy(
+                board = rotated,
+                sideToMove = color,
+                flipped = color == Piece.BLACK,
+                uncertain = e.uncertain.map { 63 - it }.toSet(),
+            ),
+        )
+    }
+
+    /**
+     * „Forgatás" a szerkesztőben = NÉZET-forgatás (mint a fő táblán): a másik
+     * szemszögből mutatja a táblát, a bábukat NEM pakolja át (az állás nem változik).
+     */
+    fun flipEditBoard() {
+        val e = _state.value.edit ?: return
+        _state.value = _state.value.copy(edit = e.copy(flipped = !e.flipped))
     }
 
     fun cancelEdit() {
@@ -385,6 +412,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             result = game.result(),
             recognizing = false,
             recognizeDone = true,
+            // A fő tábla is a lépő szemszögéből (egyezzen a fotóval/szerkesztővel).
+            boardFlipped = pos.sideToMove == Piece.BLACK,
         )
         autoSave()
         maybeEngineMove()
