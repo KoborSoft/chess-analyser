@@ -78,7 +78,12 @@ object BoardLocator {
         candidates.add((w / 8).coerceIn(pmin, pmax))
         candidates.add((h / 8).coerceIn(pmin, pmax))
 
-        var bestScore = -1.0
+        // A jelöltek közül a sakktábla-korrelációt a tábla MÉRETÉVEL súlyozva
+        // választunk (checker × periódus). Így a valódi (nagy) tábla nyer a
+        // fél-periódusú harmonikusok felett, amelyek néha magasabb nyers checkert
+        // adnak egy kis részterületen.
+        var bestScore = -1.0        // a győztes nyers checker-értéke (a kapuhoz)
+        var bestWeighted = -1.0
         var ox = 0
         var oy = 0
         var period = pmin
@@ -87,7 +92,9 @@ object BoardLocator {
             val ox0 = findOffset(gx, per)
             val oy0 = findOffset(gy, per)
             val (cx, cy, sc) = refineByChecker(gray, w, h, ox0, oy0, per)
-            if (sc > bestScore) {
+            val weighted = sc * per
+            if (weighted > bestWeighted) {
+                bestWeighted = weighted
                 bestScore = sc
                 ox = cx
                 oy = cy

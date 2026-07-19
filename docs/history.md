@@ -382,3 +382,17 @@
   szerkesztő, amiben a felismerés csak az egyik feltöltési mód. Ez oldotta fel a
   „Ki lép = tájolás vs. csak-kinek-a-köre" feszültséget is (a felismerés
   ismételhetősége miatt a tájolás újra-felismeréssel javítható).
+
+## 2026-07-19 — Lokalizáció: méret-súlyozott periódusválasztás (harmonika ellen)
+
+**Tanulság / javítás:**
+
+- A több-periódusos lokalizáció néha egy FÉL-periódusú harmonikust választott,
+  mert egy kis részterületen magasabb nyers sakktábla-korrelációt (checker) kapott
+  a valódi, teljes táblánál → zagyva felismerés (a szabályossági ellenőrzés
+  elkapta, de akkor is rossz).
+- **Javítás:** a jelöltek közül nem a nyers checkert, hanem a MÉRETTEL súlyozott
+  értéket (`checker × periódus`) maximalizáljuk. Így a valódi, nagy tábla nyer a
+  fél-harmonikus felett (pl. 92×0,59=54 > 44×0,72=32). A `Board.confidence` marad
+  a nyers checker (a „nincs tábla" kapuhoz). Ellenőrizve: a működő Feladványok-
+  képen nincs regresszió (period=92, helyes állás).
