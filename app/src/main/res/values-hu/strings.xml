@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chess Analyser</string>
+    <string name="new_game">Új játék</string>
+    <string name="undo">Visszavonás</string>
+    <string name="flip_board">Forgatás</string>
+    <string name="resign">Feladás</string>
+    <string name="share_pgn">PGN megosztása</string>
+    <string name="licenses">Licencek</string>
+    <string name="help">Súgó</string>
+    <string name="settings">Beállítások</string>
+    <string name="apply">Alkalmaz</string>
+    <string name="show_hints">Javasolt lépés mutatása</string>
+    <string name="analysis_mode">Analízis</string>
+    <string name="show_threats">Veszélyben lévő bábuk jelzése</string>
+    <string name="help_text">Koppints egy bábura a kijelöléshez, majd a célmezőre
+        a lépéshez. A + ikonnal új játékot indíthatsz, a fogaskerék ikonnal pedig
+        játszma közben is átállíthatod az ellenfelet, a motor paramétereit és a
+        jelzéseket. A tábla feletti és alatti sáv a levett bábukat és az anyagi
+        különbséget mutatja.</string>
+    <string name="project_url">Forráskód (GPLv3): https://github.com/koborsoft/chess-analyser</string>
+    <string name="language">Nyelv</string>
+    <string name="language_auto">Automatikus</string>
+    <string name="photo_import">Állás fotóról</string>
+    <string name="take_photo">Fénykép</string>
+    <string name="from_gallery">Galéria</string>
+    <string name="white_moves_next">Fehér jön</string>
+    <string name="black_moves_next">Fekete jön</string>
+    <string name="recognizing">Állás felismerése…</string>
+    <string name="recognize_error">A felismerés nem sikerült: %1$s</string>
+    <string name="edit_position">Ellenőrizd az állást</string>
+    <string name="edit_hint">A gép tippje hibás lehet. Válassz egy bábut, majd koppints a mezőkre a javításhoz.</string>
+    <string name="side_to_move">Ki lép</string>
+    <string name="edit_need_kings">Mindkét félnek pontosan egy királya legyen.</string>
+    <string name="recog_suspect_kings">Gyanús felismerés: nem pontosan egy-egy király van a táblán. Nézd át a kiemelt mezőket.</string>
+    <string name="recog_suspect_pawn">Gyanús felismerés: gyalog az 1. vagy 8. soron. Nézd át a kiemelt mezőket.</string>
+    <string name="recog_no_board">Nem találtam sakktáblát a képen. Próbálj egy tisztább, szorosabban a táblára vágott képet (a felismerő digitális képernyőképekhez való).</string>
+    <string name="tab_edit">Állás</string>
+    <string name="tab_photo">Kép</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Mégse</string>
+    <string name="start">Indítás</string>
+    <string name="white">Világos</string>
+    <string name="black">Sötét</string>
+    <string name="white_to_move">Világos lép</string>
+    <string name="black_to_move">Sötét lép</string>
+    <string name="check">Sakk!</string>
+    <string name="thinking">Gondolkodik…</string>
+    <string name="checkmate_winner">Matt — %1$s nyert</string>
+    <string name="timeout_winner">Időtúllépés — %1$s nyert</string>
+    <string name="resignation_winner">Feladás — %1$s nyert</string>
+    <string name="stalemate">Döntetlen — patt</string>
+    <string name="draw_fifty">Döntetlen — 50 lépés szabály</string>
+    <string name="draw_repetition">Döntetlen — háromszori ismétlés</string>
+    <string name="draw_material">Döntetlen — anyaghiány</string>
+    <string name="promotion_title">Átváltozás</string>
+    <string name="opponent">Ellenfél</string>
+    <string name="vs_engine">Gép</string>
+    <string name="vs_human">Két játékos</string>
+    <string name="your_color">Színed</string>
+    <string name="engine_params">A motor paraméterei</string>
+    <string name="elo_value">Elo-korlát (UCI_Elo): %1$d</string>
+    <string name="elo_unlimited">Elo-korlát (UCI_Elo): nincs</string>
+    <string name="skill_value">Skill Level: %1$d</string>
+    <string name="skill_full">Skill Level: 20 (teljes erő)</string>
+    <string name="time_value">Idő lépésenként: %1$d ms</string>
+    <string name="depth_value">Mélység-korlát: %1$d</string>
+    <string name="depth_unlimited">Mélység-korlát: nincs</string>
+    <string name="estimated_strength">Becsült erősség: ~%1$d Élő-pont</string>
+    <string name="time_control">Időkontroll</string>
+    <string name="no_clock">Óra nélkül</string>
+    <string name="license_text">Az alkalmazás a Stockfish sakkmotort használja
+        (https://stockfishchess.org), amely a GNU General Public License v3 licenc
+        alatt érhető el. Az alkalmazás teljes forráskódja elérhető itt:
+        https://github.com/koborsoft/chess-analyser . Az állás-felismerés az S1M0N38 chess-cv
+        modelljét használja (https://github.com/S1M0N38/chess-cv), MIT-licenc alatt;
+        a bábufelismerés a készüléken fut, ONNX Runtime-mal. A bábuk szabványos
+        Unicode karakterek.</string>
+</resources>

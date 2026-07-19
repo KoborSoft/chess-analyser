@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chess Analyser</string>
+    <string name="new_game">New game</string>
+    <string name="undo">Undo</string>
+    <string name="flip_board">Flip</string>
+    <string name="resign">Resign</string>
+    <string name="share_pgn">Share PGN</string>
+    <string name="licenses">Licenses</string>
+    <string name="help">Help</string>
+    <string name="settings">Settings</string>
+    <string name="apply">Apply</string>
+    <string name="show_hints">Show move suggestion</string>
+    <string name="analysis_mode">Analysis</string>
+    <string name="show_threats">Show threatened pieces</string>
+    <string name="help_text">Tap a piece to select it, then tap the target square
+        to move. Use the + icon to start a new game, and the gear icon to change
+        the opponent, engine parameters and indicators — even during a game.
+        The bars above and below the board show captured pieces and the
+        material difference.</string>
+    <string name="project_url">Source code (GPLv3): https://github.com/koborsoft/chess-analyser</string>
+    <string name="language">Language</string>
+    <string name="language_auto">Auto</string>
+    <string name="photo_import">Position from photo</string>
+    <string name="take_photo">Camera</string>
+    <string name="from_gallery">Gallery</string>
+    <string name="white_moves_next">White to move</string>
+    <string name="black_moves_next">Black to move</string>
+    <string name="recognizing">Recognizing position…</string>
+    <string name="recognize_error">Recognition failed: %1$s</string>
+    <string name="edit_position">Check the position</string>
+    <string name="edit_hint">The AI guess may be wrong. Pick a piece below, then tap squares to fix it.</string>
+    <string name="side_to_move">Side to move</string>
+    <string name="edit_need_kings">Each side needs exactly one king.</string>
+    <string name="recog_suspect_kings">Suspicious reading: there isn\'t exactly one king per side. Review the highlighted squares.</string>
+    <string name="recog_suspect_pawn">Suspicious reading: a pawn on the 1st or 8th rank. Review the highlighted squares.</string>
+    <string name="recog_no_board">No chessboard found in the image. Try a clearer picture cropped tightly to the board (the recognizer is meant for digital screenshots).</string>
+    <string name="tab_edit">Position</string>
+    <string name="tab_photo">Photo</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="start">Start</string>
+    <string name="white">White</string>
+    <string name="black">Black</string>
+    <string name="white_to_move">White to move</string>
+    <string name="black_to_move">Black to move</string>
+    <string name="check">Check!</string>
+    <string name="thinking">Thinking…</string>
+    <string name="checkmate_winner">Checkmate — %1$s wins</string>
+    <string name="timeout_winner">Time out — %1$s wins</string>
+    <string name="resignation_winner">Resignation — %1$s wins</string>
+    <string name="stalemate">Draw — stalemate</string>
+    <string name="draw_fifty">Draw — fifty-move rule</string>
+    <string name="draw_repetition">Draw — threefold repetition</string>
+    <string name="draw_material">Draw — insufficient material</string>
+    <string name="promotion_title">Promote to</string>
+    <string name="opponent">Opponent</string>
+    <string name="vs_engine">Computer</string>
+    <string name="vs_human">Two players</string>
+    <string name="your_color">Your color</string>
+    <string name="engine_params">Engine parameters</string>
+    <string name="elo_value">Elo limit (UCI_Elo): %1$d</string>
+    <string name="elo_unlimited">Elo limit (UCI_Elo): none</string>
+    <string name="skill_value">Skill Level: %1$d</string>
+    <string name="skill_full">Skill Level: 20 (full strength)</string>
+    <string name="time_value">Time per move: %1$d ms</string>
+    <string name="depth_value">Depth limit: %1$d</string>
+    <string name="depth_unlimited">Depth limit: none</string>
+    <string name="estimated_strength">Estimated strength: ~%1$d Elo</string>
+    <string name="time_control">Time control</string>
+    <string name="no_clock">No clock</string>
+    <string name="license_text">This application uses the Stockfish chess engine
+        (https://stockfishchess.org), licensed under the GNU General Public License v3.
+        The full source code of this application is available at
+        https://github.com/koborsoft/chess-analyser . Position recognition uses the chess-cv model by S1M0N38
+        (https://github.com/S1M0N38/chess-cv), MIT License. Piece classification runs
+        on-device with ONNX Runtime. Chess piece glyphs are standard Unicode characters.</string>
+</resources>

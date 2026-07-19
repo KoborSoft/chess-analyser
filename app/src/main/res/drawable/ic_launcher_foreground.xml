@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chess Analyser ikon: matt-kék mini sakktábla nagyítóval. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Mini sakktábla 4x4, matt-kék mezőkkel (30,30)-(74,74), 11-es cellák -->
+    <path android:fillColor="#D9E2EC" android:pathData="M30,30 h44 v44 h-44 z" />
+    <path
+        android:fillColor="#7C96B0"
+        android:pathData="M41,30 h11 v11 h-11 z M63,30 h11 v11 h-11 z
+            M30,41 h11 v11 h-11 z M52,41 h11 v11 h-11 z
+            M41,52 h11 v11 h-11 z M63,52 h11 v11 h-11 z
+            M30,63 h11 v11 h-11 z M52,63 h11 v11 h-11 z" />
+
+    <!-- Nagyító: gyűrű + nyél -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F4F7FA"
+        android:strokeWidth="5.5"
+        android:pathData="M52,35 a17,17 0 1,0 0.001,0 z" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F4F7FA"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:pathData="M64.5,64.5 L78,78" />
+</vector>

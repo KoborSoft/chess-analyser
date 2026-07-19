@@ -1,0 +1,19 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+*.keystore
+*.jks
+.kotlin/
+*.apk
+
+# Stockfish natív bináris — nem forrás; a tools/build_stockfish.sh állítja elő (NDK kell)
+app/src/main/jniLibs/**/*.so
+
+# UI-teszt kimeneti képek (regenerálhatók)
+tests/evidence/
