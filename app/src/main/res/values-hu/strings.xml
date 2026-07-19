@@ -41,6 +41,7 @@
     <string name="paste_fail">Nem sikerült értelmezni: nem érvényes FEN vagy PGN.</string>
     <string name="side_to_move">Ki lép</string>
     <!-- Rövid ikonfeliratok (az ikonok alá, pici betűvel) -->
+    <string name="lbl_flip">Oldalcsere</string>
     <string name="lbl_edit">Szerkesztés</string>
     <string name="lbl_new">Új</string>
     <string name="lbl_analysis">Analízis</string>

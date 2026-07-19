@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
@@ -189,6 +190,16 @@ fun GameScreen(
                     onClick = viewModel::undo,
                     enabled = state.sanMoves.isNotEmpty() && !state.engineThinking,
                 )
+                // Oldalcsere csak analízis módban, gép ellen: a tábla fordul, a
+                // színed vált, a gép átveszi a másik oldalt (a history megmarad).
+                if (state.analysisMode && state.config.mode == GameMode.HUMAN_VS_ENGINE) {
+                    LabeledIconButton(
+                        icon = Icons.Filled.SwapVert,
+                        label = stringResource(R.string.lbl_flip),
+                        onClick = viewModel::switchSides,
+                        enabled = !state.engineThinking,
+                    )
+                }
                 LabeledIconButton(
                     icon = Icons.Filled.Flag,
                     label = stringResource(R.string.lbl_resign),

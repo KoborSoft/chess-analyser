@@ -759,17 +759,38 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         engineJob?.cancel()
         engine?.close()
         engine = null
+        // A színváltás a táblát is fordítja, hogy a játékos alul maradjon.
+        // A lépéstörténet (fa) NEM változik — csak a beállítások.
         _state.value = _state.value.copy(
             config = _state.value.config.copy(
                 mode = mode,
                 humanColor = humanColor,
                 engine = settings,
             ),
+            boardFlipped = mode == GameMode.HUMAN_VS_ENGINE && humanColor == Piece.BLACK,
             engineThinking = false,
         )
         autoSave()
         maybeEngineMove()
         updateIndicators()
+    }
+
+    /**
+     * Oldalcsere (analízis módban, gép ellen): a játékos a másik színt viszi, a
+     * tábla fordul (a játékos alul marad), a gép átveszi az addigi színedet, és
+     * lép, ha az ő köre. A LÉPÉSTÖRTÉNET megmarad — a fát nem építjük újra.
+     */
+    fun switchSides() {
+        val s = _state.value
+        if (s.config.mode != GameMode.HUMAN_VS_ENGINE || s.engineThinking) return
+        val newColor = if (s.config.humanColor == Piece.WHITE) Piece.BLACK else Piece.WHITE
+        prefs.edit().putInt(KEY_COLOR, newColor).apply()
+        _state.value = s.copy(
+            config = s.config.copy(humanColor = newColor),
+            boardFlipped = newColor == Piece.BLACK,
+        )
+        autoSave()
+        maybeEngineMove()
     }
 
     fun resign() {

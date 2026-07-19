@@ -41,6 +41,7 @@
     <string name="paste_fail">Could not parse: not a valid FEN or PGN.</string>
     <string name="side_to_move">Side to move</string>
     <!-- Short icon captions (tiny text under the icons) -->
+    <string name="lbl_flip">Switch</string>
     <string name="lbl_edit">Edit</string>
     <string name="lbl_new">New</string>
     <string name="lbl_analysis">Analysis</string>
