@@ -31,6 +31,17 @@
     <string name="edit_position">Ellenőrizd az állást</string>
     <string name="edit_hint">A gép tippje hibás lehet. Válassz egy bábut, majd koppints a mezőkre a javításhoz.</string>
     <string name="side_to_move">Ki lép</string>
+    <!-- Rövid ikonfeliratok (az ikonok alá, pici betűvel) -->
+    <string name="lbl_new">Új</string>
+    <string name="lbl_analysis">Analízis</string>
+    <string name="lbl_recognize">Felismerés</string>
+    <string name="lbl_settings">Beállítás</string>
+    <string name="lbl_undo">Vissza</string>
+    <string name="lbl_flip">Fordít</string>
+    <string name="lbl_resign">Feladás</string>
+    <string name="lbl_share">Megoszt</string>
+    <string name="lbl_hints">Javaslat</string>
+    <string name="lbl_threats">Veszély</string>
     <string name="edit_need_kings">Mindkét félnek pontosan egy királya legyen.</string>
     <string name="recog_suspect_kings">Gyanús felismerés: nem pontosan egy-egy király van a táblán. Nézd át a kiemelt mezőket.</string>
     <string name="recog_suspect_pawn">Gyanús felismerés: gyalog az 1. vagy 8. soron. Nézd át a kiemelt mezőket.</string>

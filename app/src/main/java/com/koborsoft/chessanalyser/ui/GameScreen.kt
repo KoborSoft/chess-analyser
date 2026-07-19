@@ -42,8 +42,11 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -67,6 +70,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -76,9 +80,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.koborsoft.chessanalyser.GameConfig
 import com.koborsoft.chessanalyser.GameMode
 import com.koborsoft.chessanalyser.GameViewModel
@@ -114,33 +122,48 @@ fun GameScreen(
         if (state.edit != null) showPhoto = false
     }
 
+    // Finom, matt-kék színátmenetes háttér (a fehér helyett), téma szerint.
+    val bgBrush = if (isSystemInDarkTheme()) {
+        Brush.verticalGradient(listOf(Color(0xFF141C26), Color(0xFF1E2A38), Color(0xFF283A4E)))
+    } else {
+        Brush.verticalGradient(listOf(Color(0xFFEDF2F8), Color(0xFFDFE8F2), Color(0xFFD2DEEC)))
+    }
+    Box(modifier = Modifier.fillMaxSize().background(bgBrush)) {
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
+                title = {
+                    Text(
+                        stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 actions = {
-                    IconButton(onClick = { showNewGame = true }) {
-                        Icon(Icons.Filled.Add, stringResource(R.string.new_game))
-                    }
-                    IconButton(onClick = { viewModel.setAnalysisMode(!state.analysisMode) }) {
-                        Icon(
-                            Icons.Filled.Analytics,
-                            stringResource(R.string.analysis_mode),
-                            tint = if (state.analysisMode) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                LocalContentColor.current.copy(alpha = 0.4f)
-                            },
-                        )
-                    }
-                    IconButton(
+                    LabeledIconButton(
+                        icon = Icons.Filled.Add,
+                        label = stringResource(R.string.lbl_new),
+                        onClick = { showNewGame = true },
+                    )
+                    LabeledIconButton(
+                        icon = Icons.Filled.Analytics,
+                        label = stringResource(R.string.lbl_analysis),
+                        onClick = { viewModel.setAnalysisMode(!state.analysisMode) },
+                        tint = if (state.analysisMode) MaterialTheme.colorScheme.primary
+                        else LocalContentColor.current.copy(alpha = 0.4f),
+                    )
+                    LabeledIconButton(
+                        icon = Icons.Filled.PhotoCamera,
+                        label = stringResource(R.string.lbl_recognize),
                         onClick = { showPhoto = true },
-                    ) {
-                        Icon(Icons.Filled.PhotoCamera, stringResource(R.string.photo_import))
-                    }
-                    IconButton(onClick = { showSettings = true }) {
-                        Icon(Icons.Filled.Settings, stringResource(R.string.settings))
-                    }
+                    )
+                    LabeledIconButton(
+                        icon = Icons.Filled.Settings,
+                        label = stringResource(R.string.lbl_settings),
+                        onClick = { showSettings = true },
+                    )
                 },
             )
         },
@@ -167,44 +190,44 @@ fun GameScreen(
                 onSquareTap = viewModel::onSquareTap,
             )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconButton(
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                LabeledIconButton(
+                    icon = Icons.AutoMirrored.Filled.Undo,
+                    label = stringResource(R.string.lbl_undo),
                     onClick = viewModel::undo,
                     enabled = state.sanMoves.isNotEmpty() && !state.engineThinking,
-                ) { Icon(Icons.AutoMirrored.Filled.Undo, stringResource(R.string.undo)) }
-                IconButton(onClick = viewModel::flipBoard) {
-                    Icon(Icons.Filled.SwapVert, stringResource(R.string.flip_board))
-                }
-                IconButton(
+                )
+                LabeledIconButton(
+                    icon = Icons.Filled.SwapVert,
+                    label = stringResource(R.string.lbl_flip),
+                    onClick = viewModel::flipBoard,
+                )
+                LabeledIconButton(
+                    icon = Icons.Filled.Flag,
+                    label = stringResource(R.string.lbl_resign),
                     onClick = viewModel::resign,
                     enabled = !state.result.isOver && state.sanMoves.isNotEmpty(),
-                ) { Icon(Icons.Filled.Flag, stringResource(R.string.resign)) }
-                IconButton(onClick = { onSharePgn(viewModel.exportPgn()) }) {
-                    Icon(Icons.Filled.Share, stringResource(R.string.share_pgn))
-                }
+                )
+                LabeledIconButton(
+                    icon = Icons.Filled.Share,
+                    label = stringResource(R.string.lbl_share),
+                    onClick = { onSharePgn(viewModel.exportPgn()) },
+                )
                 if (state.analysisMode) {
-                    IconButton(onClick = { viewModel.setShowHints(!state.showHints) }) {
-                        Icon(
-                            Icons.Filled.Lightbulb,
-                            stringResource(R.string.show_hints),
-                            tint = if (state.showHints) {
-                                Color(0xFF2E7D32)
-                            } else {
-                                LocalContentColor.current.copy(alpha = 0.4f)
-                            },
-                        )
-                    }
-                    IconButton(onClick = { viewModel.setShowThreats(!state.showThreats) }) {
-                        Icon(
-                            Icons.Filled.Warning,
-                            stringResource(R.string.show_threats),
-                            tint = if (state.showThreats) {
-                                Color(0xFFC62828)
-                            } else {
-                                LocalContentColor.current.copy(alpha = 0.4f)
-                            },
-                        )
-                    }
+                    LabeledIconButton(
+                        icon = Icons.Filled.Lightbulb,
+                        label = stringResource(R.string.lbl_hints),
+                        onClick = { viewModel.setShowHints(!state.showHints) },
+                        tint = if (state.showHints) Color(0xFF2E7D32)
+                        else LocalContentColor.current.copy(alpha = 0.4f),
+                    )
+                    LabeledIconButton(
+                        icon = Icons.Filled.Warning,
+                        label = stringResource(R.string.lbl_threats),
+                        onClick = { viewModel.setShowThreats(!state.showThreats) },
+                        tint = if (state.showThreats) Color(0xFFC62828)
+                        else LocalContentColor.current.copy(alpha = 0.4f),
+                    )
                 }
             }
 
@@ -219,6 +242,7 @@ fun GameScreen(
                 Spacer(Modifier.weight(1f))
             }
         }
+    }
     }
 
     if (showNewGame) {
@@ -903,6 +927,40 @@ private fun PhotoImportDialog(
             }
         },
     )
+}
+
+/**
+ * Ikongomb rövid felirattal alatta (pici betűvel). A felirat és az ikon színe
+ * közös ([tint]); letiltva mindkettő elhalványul.
+ */
+@Composable
+private fun LabeledIconButton(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    tint: Color = LocalContentColor.current,
+) {
+    val color = if (enabled) tint else tint.copy(alpha = 0.38f)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+    ) {
+        Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(22.dp))
+        Text(
+            label,
+            color = color,
+            fontSize = 9.sp,
+            lineHeight = 10.sp,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+        )
+    }
 }
 
 /** Legördülő választómező (combobox): a kijelölt érték + lenyíló menü. */

@@ -112,7 +112,9 @@ Jelmagyarázat: `[ ]` teendő · `[x]` kész · `[~]` folyamatban
 - [x] PGN megosztása (rendszer megosztási menü)
 - [ ] PGN/FEN importálás felülete (a logika kész, UI hiányzik)
 - [x] Material 3, világos/sötét téma
-- [ ] Fekvő nézet és tablet-elrendezés finomítása
+- [x] Álló (portrait) módra zárva: a program kötelezően álló tájolásban
+      használandó (a manifestben `screenOrientation="portrait"`), így nem törik
+      el az elrendezés fekvőben
 - [x] Magyar és angol fordítás
 - [x] Alkalmazásnév: Chess Analyser; adaptív ikon (matt-kék mini
       sakktábla nagyítóval)
