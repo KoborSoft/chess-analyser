@@ -110,7 +110,8 @@ Jelmagyarázat: `[ ]` teendő · `[x]` kész · `[~]` folyamatban
 - [ ] Egyéni időkontroll megadása
 - [x] Automatikus mentés kilépéskor, visszatöltés induláskor
 - [x] PGN megosztása (rendszer megosztási menü)
-- [ ] PGN/FEN importálás felülete (a logika kész, UI hiányzik)
+- [x] PGN/FEN importálás felülete: a szerkesztőben fájl- és string-betöltés
+      (auto-detektált FEN vagy PGN), a kép-felismerés mellé
 - [x] Material 3, világos/sötét téma
 - [x] Álló (portrait) módra zárva: a program kötelezően álló tájolásban
       használandó (a manifestben `screenOrientation="portrait"`), így nem törik
