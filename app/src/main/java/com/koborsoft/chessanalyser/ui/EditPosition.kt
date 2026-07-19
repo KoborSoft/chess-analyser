@@ -22,9 +22,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -108,7 +111,7 @@ fun PositionEditor(
             ) {
                 Text(
                     stringResource(R.string.editor_title),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
                 IconButton(onClick = onCancel) {
@@ -190,7 +193,11 @@ fun PositionEditor(
                     onSelect = onSide,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = onFlip) { Text(stringResource(R.string.flip_board)) }
+                TextButton(onClick = onFlip) {
+                    Icon(Icons.Filled.SwapVert, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(stringResource(R.string.flip_board))
+                }
             }
 
             // Feltöltés: felismerés képről / beillesztés (FEN/PGN) / üres tábla
@@ -205,6 +212,8 @@ fun PositionEditor(
                     Text(stringResource(R.string.editor_recognize))
                 }
                 OutlinedButton(onClick = onClear, enabled = !recognizing) {
+                    Icon(Icons.Filled.Delete, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
                     Text(stringResource(R.string.editor_clear))
                 }
             }
@@ -251,8 +260,16 @@ fun PositionEditor(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
-                Button(onClick = onConfirm) { Text(stringResource(R.string.editor_load)) }
+                TextButton(onClick = onCancel) {
+                    Icon(Icons.Filled.Close, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(stringResource(R.string.cancel))
+                }
+                Button(onClick = onConfirm) {
+                    Icon(Icons.Filled.Check, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.editor_load))
+                }
             }
         }
     }
