@@ -31,7 +31,6 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -191,11 +190,6 @@ fun GameScreen(
                     enabled = state.sanMoves.isNotEmpty() && !state.engineThinking,
                 )
                 LabeledIconButton(
-                    icon = Icons.Filled.SwapVert,
-                    label = stringResource(R.string.lbl_flip),
-                    onClick = viewModel::flipBoard,
-                )
-                LabeledIconButton(
                     icon = Icons.Filled.Flag,
                     label = stringResource(R.string.lbl_resign),
                     onClick = viewModel::resign,
@@ -288,7 +282,6 @@ fun GameScreen(
             onSquareTap = viewModel::onEditSquareTap,
             onBrush = viewModel::setEditBrush,
             onSide = viewModel::setEditSide,
-            onFlip = viewModel::flipEditBoard,
             onClear = viewModel::clearEditBoard,
             onRecognize = viewModel::recognizeFromImage,
             onLoadFile = viewModel::importFile,

@@ -3,7 +3,6 @@
     <string name="app_name">Chess Analyser</string>
     <string name="new_game">Új játék</string>
     <string name="undo">Visszavonás</string>
-    <string name="flip_board">Forgatás</string>
     <string name="resign">Feladás</string>
     <string name="share_pgn">PGN megosztása</string>
     <string name="licenses">Licencek</string>
@@ -47,7 +46,6 @@
     <string name="lbl_analysis">Analízis</string>
     <string name="lbl_settings">Beállítás</string>
     <string name="lbl_undo">Vissza</string>
-    <string name="lbl_flip">Fordít</string>
     <string name="lbl_resign">Feladás</string>
     <string name="lbl_share">Megoszt</string>
     <string name="lbl_hints">Javaslat</string>

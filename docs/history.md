@@ -423,3 +423,17 @@ gomb → rendszer fájlválasztó (`OpenDocument`, `*/*`). A fájl tartalmát be
 (`importFile`), majd az `importText` auto-detektál: PGN → teljes játszma, FEN →
 a szerkesztő táblája. Telefonon igazolva: `test.pgn` (Ruy Lopez) betöltött a
 lépésgráffal; a FEN-út korábban igazolva.
+
+## 2026-07-20 — Táblafordítás kivéve; nyilak tompítva
+
+**Döntések (felhasználói):**
+
+- **Nézet-forgatás teljesen kivéve** (fő tábla „Fordít" + szerkesztő „Forgatás").
+  A sima táblafordítás felesleges/zavaró, nagy programokban sincs. A tábla
+  automatikusan a játékos oldalával áll (gép ellen a humanColor szerint);
+  az oldalcsere az analízis módban adott (ott a felhasználó mindkét fél helyett
+  léphet). A `flipBoard`/`flipEditBoard` és a lbl_flip/flip_board törölve;
+  a `boardFlipped`/`edit.flipped` (automatikus tájolás) marad.
+- **A javaslat/veszély nyilak szélsőségei tompítva:** a vastagság-tartomány
+  0,20–0,07 → 0,15–0,10 cella; a színek összenyomva (a legerősebb sem agresszív,
+  a leggyengébb is jól látható). A pontos erősséget a nyílra írt szám adja.

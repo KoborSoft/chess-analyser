@@ -370,15 +370,6 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         _state.value = _state.value.copy(edit = e.copy(sideToMove = color))
     }
 
-    /**
-     * „Forgatás" a szerkesztőben = NÉZET-forgatás (mint a fő táblán): a másik
-     * szemszögből mutatja a táblát, a bábukat NEM pakolja át (az állás nem változik).
-     */
-    fun flipEditBoard() {
-        val e = _state.value.edit ?: return
-        _state.value = _state.value.copy(edit = e.copy(flipped = !e.flipped))
-    }
-
     fun cancelEdit() {
         _state.value = _state.value.copy(edit = null, recognizeDone = false)
     }
@@ -791,10 +782,6 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         game.endByResignation(loser)
         publish()
         autoSave()
-    }
-
-    fun flipBoard() {
-        _state.value = _state.value.copy(boardFlipped = !_state.value.boardFlipped)
     }
 
     fun exportPgn(): String {

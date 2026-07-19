@@ -64,12 +64,13 @@ private val BLACK_MOVE_ON_DARK = Color(0xFF9880BA)
 
 /**
  * A nyilak színmélysége ÉS vastagsága a lépés erősségével arányos (0..1),
- * a pontos értéket pedig a nyílra írt szám adja meg.
+ * a pontos értéket a nyílra írt szám adja meg. A szélsőségek tompítva: a
+ * legerősebb sem agresszív, a leggyengébb is jól látható (a skálát a szám adja).
  */
-private val HINT_STRONG = Color(0xE61B5E20)
-private val HINT_WEAK = Color(0x9973B577)
-private val THREAT_STRONG = Color(0xE6A80000)
-private val THREAT_WEAK = Color(0x99E57373)
+private val HINT_STRONG = Color(0xDA2E7D32)
+private val HINT_WEAK = Color(0xB866BB6A)
+private val THREAT_STRONG = Color(0xDAC62828)
+private val THREAT_WEAK = Color(0xB8EF5350)
 
 private const val ANIM_MS = 180
 
@@ -261,7 +262,8 @@ private fun DrawScope.drawArrow(
     val length = delta.getDistance()
     if (length < 1f) return
     val unit = Offset(delta.x / length, delta.y / length)
-    val width = cellPx * (0.20f - 0.13f * weakness)
+    // Tompított tartomány: a legerősebb sem túl vastag, a leggyengébb is látható.
+    val width = cellPx * (0.15f - 0.05f * weakness)
     val headLength = width * 2.4f
     val lineEnd = Offset(to.x - unit.x * headLength, to.y - unit.y * headLength)
     val perp = Offset(-unit.y, unit.x)

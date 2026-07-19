@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -76,7 +75,6 @@ fun PositionEditor(
     onSquareTap: (Int) -> Unit,
     onBrush: (Int) -> Unit,
     onSide: (Int) -> Unit,
-    onFlip: () -> Unit,
     onClear: () -> Unit,
     onRecognize: (Uri) -> Unit,
     onLoadFile: (Uri) -> String?,
@@ -198,11 +196,6 @@ fun PositionEditor(
                     label = stringResource(R.string.black),
                     selected = edit.sideToMove == Piece.BLACK,
                     onClick = { onSide(Piece.BLACK) },
-                )
-                LabeledIconButton(
-                    icon = Icons.Filled.SwapVert,
-                    label = stringResource(R.string.flip_board),
-                    onClick = onFlip,
                 )
                 LabeledIconButton(
                     icon = Icons.Filled.PhotoCamera,
