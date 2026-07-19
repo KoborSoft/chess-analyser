@@ -21,20 +21,22 @@
     <string name="project_url">Source code (GPLv3): https://github.com/koborsoft/chess-analyser</string>
     <string name="language">Language</string>
     <string name="language_auto">Auto</string>
-    <string name="photo_import">Position from photo</string>
-    <string name="take_photo">Camera</string>
-    <string name="from_gallery">Gallery</string>
     <string name="white_moves_next">White to move</string>
     <string name="black_moves_next">Black to move</string>
     <string name="recognizing">Recognizing position…</string>
     <string name="recognize_error">Recognition failed: %1$s</string>
     <string name="edit_position">Check the position</string>
     <string name="edit_hint">The AI guess may be wrong. Pick a piece below, then tap squares to fix it.</string>
+    <string name="editor_title">Edit position</string>
+    <string name="editor_hint">Pick a piece, then tap squares. Or load an image to recognise.</string>
+    <string name="editor_recognize">Recognise from image</string>
+    <string name="editor_clear">Empty board</string>
+    <string name="editor_load">Load</string>
     <string name="side_to_move">Side to move</string>
     <!-- Short icon captions (tiny text under the icons) -->
+    <string name="lbl_edit">Edit</string>
     <string name="lbl_new">New</string>
     <string name="lbl_analysis">Analysis</string>
-    <string name="lbl_recognize">Recognise</string>
     <string name="lbl_settings">Settings</string>
     <string name="lbl_undo">Undo</string>
     <string name="lbl_flip">Flip</string>

@@ -357,3 +357,28 @@
 - A „fekete jön esetén elég a nézetet fordítani" intuíció a LÁTVÁNYRA igaz, de a
   pozícióra nem: a nézet nem rendel mezőket, a kamerából jövő raszter-olvasatot
   ténylegesen át kell forgatni, különben a bábuk rossz soron állnának.
+
+## 2026-07-19 — Felismerés-UI redesign: egységes állásszerkesztő
+
+**Döntések:**
+
+- A korábbi szűk „felismerés → AlertDialog-előnézet" folyamat helyett EGY teljes
+  képernyős **állásszerkesztő** (`PositionEditor`), ami a központi állásbeviteli
+  felület. Belépő: a felső sávban „Szerkesztés" (Edit ikon), ami az AKTUÁLIS
+  állással nyílik.
+- Háromféle feltöltés egy helyen: (1) az aktuális állás szerkesztése (alap),
+  (2) „Felismerés képről" gomb — akár többször, más képpel vagy újra ugyanazzal,
+  (3) „Üres tábla" — nulláról. Végül „Betöltés".
+- **A „Ki lép" váltó a felismerés tájolási tippje**, de a meglévő táblát NEM
+  forgatja (normál szerkesztésnél az rossz lenne). Ha a tájolás téves, a
+  felhasználó átállítja a „Ki lép"-et és újra felismer ugyanazzal a képpel.
+- A régi `PhotoImportDialog` (külön „Fehér/Fekete jön" + galéria) törölve —
+  a szín-választás és a felismerés is a szerkesztőbe került.
+
+**Tanulság:**
+
+- A felhasználó kérése: „ne csak hegeszd ami van". Az AlertDialog-alapú előnézet
+  bővítése helyett a valódi megoldás egy teljes képernyős, újrahasznosítható
+  szerkesztő, amiben a felismerés csak az egyik feltöltési mód. Ez oldotta fel a
+  „Ki lép = tájolás vs. csak-kinek-a-köre" feszültséget is (a felismerés
+  ismételhetősége miatt a tájolás újra-felismeréssel javítható).

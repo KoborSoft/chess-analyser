@@ -21,20 +21,22 @@
     <string name="project_url">Forráskód (GPLv3): https://github.com/koborsoft/chess-analyser</string>
     <string name="language">Nyelv</string>
     <string name="language_auto">Automatikus</string>
-    <string name="photo_import">Állás fotóról</string>
-    <string name="take_photo">Fénykép</string>
-    <string name="from_gallery">Galéria</string>
     <string name="white_moves_next">Fehér jön</string>
     <string name="black_moves_next">Fekete jön</string>
     <string name="recognizing">Állás felismerése…</string>
     <string name="recognize_error">A felismerés nem sikerült: %1$s</string>
     <string name="edit_position">Ellenőrizd az állást</string>
     <string name="edit_hint">A gép tippje hibás lehet. Válassz egy bábut, majd koppints a mezőkre a javításhoz.</string>
+    <string name="editor_title">Állás szerkesztése</string>
+    <string name="editor_hint">Válassz egy bábut, majd koppints a mezőkre. Vagy tölts be egy képet felismeréshez.</string>
+    <string name="editor_recognize">Felismerés képről</string>
+    <string name="editor_clear">Üres tábla</string>
+    <string name="editor_load">Betöltés</string>
     <string name="side_to_move">Ki lép</string>
     <!-- Rövid ikonfeliratok (az ikonok alá, pici betűvel) -->
+    <string name="lbl_edit">Szerkesztés</string>
     <string name="lbl_new">Új</string>
     <string name="lbl_analysis">Analízis</string>
-    <string name="lbl_recognize">Felismerés</string>
     <string name="lbl_settings">Beállítás</string>
     <string name="lbl_undo">Vissza</string>
     <string name="lbl_flip">Fordít</string>

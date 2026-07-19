@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -109,17 +110,9 @@ fun GameScreen(
     var showNewGame by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showHelp by remember { mutableStateOf(false) }
-    var showPhoto by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.recognizeDone) {
-        if (state.recognizeDone) {
-            showPhoto = false
-            viewModel.clearRecognizeDone()
-        }
-    }
-    // Felismerés után szerkeszthető előnézet nyílik a fotó-párbeszéd helyett.
-    LaunchedEffect(state.edit != null) {
-        if (state.edit != null) showPhoto = false
+        if (state.recognizeDone) viewModel.clearRecognizeDone()
     }
 
     // Finom, matt-kék színátmenetes háttér (a fehér helyett), téma szerint.
@@ -155,9 +148,9 @@ fun GameScreen(
                         else LocalContentColor.current.copy(alpha = 0.4f),
                     )
                     LabeledIconButton(
-                        icon = Icons.Filled.PhotoCamera,
-                        label = stringResource(R.string.lbl_recognize),
-                        onClick = { showPhoto = true },
+                        icon = Icons.Filled.Edit,
+                        label = stringResource(R.string.lbl_edit),
+                        onClick = { viewModel.openEditor() },
                     )
                     LabeledIconButton(
                         icon = Icons.Filled.Settings,
@@ -287,21 +280,17 @@ fun GameScreen(
             },
         )
     }
-    if (showPhoto) {
-        PhotoImportDialog(
-            recognizing = state.recognizing,
-            error = state.recognizeError,
-            onPick = viewModel::recognizeFromImage,
-            onDismiss = { showPhoto = false; viewModel.clearRecognizeDone() },
-        )
-    }
     state.edit?.let { edit ->
-        EditPositionDialog(
+        PositionEditor(
             edit = edit,
+            recognizing = state.recognizing,
+            recognizeError = state.recognizeError,
             onSquareTap = viewModel::onEditSquareTap,
             onBrush = viewModel::setEditBrush,
             onSide = viewModel::setEditSide,
             onFlip = viewModel::flipEditBoard,
+            onClear = viewModel::clearEditBoard,
+            onRecognize = viewModel::recognizeFromImage,
             onConfirm = viewModel::confirmEdit,
             onCancel = viewModel::cancelEdit,
         )
@@ -865,69 +854,6 @@ private fun GameSettingsDialog(
     )
 }
 
-/**
- * Állás betöltése fényképről: "Fehér jön / Fekete jön" választó, majd
- * fénykép készítése vagy kép választása a galériából. A felismert állás
- * azonnal játszható.
- */
-@Composable
-private fun PhotoImportDialog(
-    recognizing: Boolean,
-    error: String?,
-    onPick: (Uri, Int) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    var side by remember { mutableStateOf(Piece.WHITE) }
-    val galleryLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent(),
-    ) { uri ->
-        uri?.let { onPick(it, side) }
-    }
-
-    AlertDialog(
-        onDismissRequest = { if (!recognizing) onDismiss() },
-        title = { Text(stringResource(R.string.photo_import)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                SegChoice(
-                    options = listOf(
-                        Piece.WHITE to stringResource(R.string.white_moves_next),
-                        Piece.BLACK to stringResource(R.string.black_moves_next),
-                    ),
-                    selected = side,
-                    onSelect = { side = it },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                if (recognizing) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        CircularProgressIndicator()
-                        Text(stringResource(R.string.recognizing))
-                    }
-                }
-                error?.let {
-                    Text(
-                        stringResource(R.string.recognize_error, it),
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                enabled = !recognizing,
-                onClick = { galleryLauncher.launch("image/*") },
-            ) { Text(stringResource(R.string.from_gallery)) }
-        },
-        dismissButton = {
-            TextButton(enabled = !recognizing, onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        },
-    )
-}
 
 /**
  * Ikongomb rövid felirattal alatta (pici betűvel). A felirat és az ikon színe

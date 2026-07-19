@@ -1,5 +1,8 @@
 package com.koborsoft.chessanalyser.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,14 +12,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -42,26 +56,54 @@ private val ED_SELECTED = Color(0xFF44607C)
 private val ED_UNCERTAIN = Color(0xFFE8A317)  // bizonytalan mező jelzése (borostyán)
 
 /**
- * Fotóból felismert állás szerkesztése: ecset (bábu/üres) választása, majd
- * mezőkre koppintás; „ki lép" és tábla-forgatás; végül indítás.
+ * Teljes képernyős állásszerkesztő. Alapból az aktuális állást szerkeszted;
+ * feltöltheted egy képről felismert állással (akár többször, más képpel vagy
+ * újra ugyanazzal), vagy nulláról („Üres tábla"). Bábu-paletta + koppintás,
+ * „Ki lép" (egyben a felismerés tájolási tippje), nézet-forgatás, végül Betöltés.
  */
 @Composable
-fun EditPositionDialog(
+fun PositionEditor(
     edit: EditState,
+    recognizing: Boolean,
+    recognizeError: String?,
     onSquareTap: (Int) -> Unit,
     onBrush: (Int) -> Unit,
     onSide: (Int) -> Unit,
     onFlip: () -> Unit,
+    onClear: () -> Unit,
+    onRecognize: (Uri) -> Unit,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onCancel,
-        title = { Text(stringResource(R.string.edit_position)) },
-        text = {
-            var showImage by remember { mutableStateOf(false) }
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.edit_hint), style = MaterialTheme.typography.bodySmall)
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent(),
+    ) { uri -> uri?.let(onRecognize) }
+    var showImage by remember { mutableStateOf(false) }
+
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+        Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+            // Fejléc
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.editor_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+                IconButton(onClick = onCancel) {
+                    Icon(Icons.Filled.Close, stringResource(R.string.cancel))
+                }
+            }
+
+            // Görgethető szerkesztő-terület
+            Column(
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(stringResource(R.string.editor_hint), style = MaterialTheme.typography.bodySmall)
 
                 // Tab: szerkesztett állás vagy a forráskép megtekintése.
                 if (edit.sourceImage != null) {
@@ -88,7 +130,6 @@ fun EditPositionDialog(
 
                 // Ecsetpaletta: törlő + világos + sötét bábuk.
                 PaletteRow(
-                    label = stringResource(R.string.white),
                     pieces = listOf(
                         Piece.NONE,
                         Piece.of(Piece.WHITE, Piece.PAWN),
@@ -102,7 +143,6 @@ fun EditPositionDialog(
                     onBrush = onBrush,
                 )
                 PaletteRow(
-                    label = stringResource(R.string.black),
                     pieces = listOf(
                         Piece.of(Piece.BLACK, Piece.PAWN),
                         Piece.of(Piece.BLACK, Piece.KNIGHT),
@@ -115,6 +155,7 @@ fun EditPositionDialog(
                     onBrush = onBrush,
                 )
 
+                // Ki lép + nézet-forgatás
                 Text(stringResource(R.string.side_to_move), fontWeight = FontWeight.Bold)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -132,6 +173,35 @@ fun EditPositionDialog(
                     TextButton(onClick = onFlip) { Text(stringResource(R.string.flip_board)) }
                 }
 
+                // Feltöltés: felismerés képről / üres tábla
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { galleryLauncher.launch("image/*") },
+                        enabled = !recognizing,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Icon(Icons.Filled.PhotoCamera, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(stringResource(R.string.editor_recognize))
+                    }
+                    OutlinedButton(onClick = onClear, enabled = !recognizing) {
+                        Text(stringResource(R.string.editor_clear))
+                    }
+                }
+
+                // Állapot / hibák
+                if (recognizing) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        Text(stringResource(R.string.recognizing))
+                    }
+                }
+                recognizeError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
                 val warnRes = when (edit.error) {
                     "one_king_each" -> R.string.edit_need_kings
                     "recog_suspect_kings" -> R.string.recog_suspect_kings
@@ -146,14 +216,18 @@ fun EditPositionDialog(
                     )
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) { Text(stringResource(R.string.start)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
-        },
-    )
+
+            // Fix alsó gombsor
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
+                Button(onClick = onConfirm) { Text(stringResource(R.string.editor_load)) }
+            }
+        }
+    }
 }
 
 @Composable
@@ -192,7 +266,6 @@ private fun EditBoard(edit: EditState, onSquareTap: (Int) -> Unit) {
 
 @Composable
 private fun PaletteRow(
-    label: String,
     pieces: List<Int>,
     brush: Int,
     onBrush: (Int) -> Unit,

@@ -211,14 +211,41 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         updateIndicators()
     }
 
+    /** A szerkesztő megnyitása az AKTUÁLIS állással (alapból ezt szerkesztheted). */
+    fun openEditor() {
+        val pos = game.position
+        _state.value = _state.value.copy(
+            recognizeError = null,
+            edit = EditState(
+                board = pos.board.copyOf(),
+                sideToMove = pos.sideToMove,
+                flipped = _state.value.boardFlipped,
+                brush = Piece.NONE,
+            ),
+        )
+    }
+
+    /** A szerkesztő tábláját üresre állítja (nulláról rögzítéshez). */
+    fun clearEditBoard() {
+        val e = _state.value.edit ?: return
+        _state.value = _state.value.copy(
+            recognizeError = null,
+            edit = e.copy(board = IntArray(64), uncertain = emptySet(), error = null),
+        )
+    }
+
     /**
-     * Állás felismerése fényképről a beépített offline CNN-nel; sikeres
-     * felismerés után az állás azonnal játszható a jelenlegi beállításokkal.
+     * A nyitott szerkesztő tábláját feltölti egy képről felismert állással.
+     * A tájolást a szerkesztő „Ki lép" értéke adja (a szabály: a lépő van alul);
+     * ha rossz, a felhasználó átállítja a „Ki lép"-et és újra felismer. A művelet
+     * ismételhető (más képpel vagy ugyanazzal). Alacsony megbízhatóságnál a jelenlegi
+     * tábla marad, csak hibaüzenet jelenik meg.
      */
-    fun recognizeFromImage(uri: android.net.Uri, sideToMove: Int) {
-        val s = _state.value
-        if (s.recognizing) return
-        _state.value = s.copy(recognizing = true, recognizeError = null)
+    fun recognizeFromImage(uri: android.net.Uri) {
+        val e = _state.value.edit ?: return
+        if (_state.value.recognizing) return
+        val sideToMove = e.sideToMove
+        _state.value = _state.value.copy(recognizing = true, recognizeError = null)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val ctx = getApplication<Application>()
@@ -239,31 +266,23 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                     bitmap
                 }
 
-                // Offline CNN-felismerés a TELJES felbontású képen: a
-                // tábla-lokalizáció így pontosabb (a downscale csak az előnézethez).
+                // Offline CNN-felismerés a TELJES felbontású képen (a downscale
+                // csak az előnézeti forráskép).
                 val recog = com.koborsoft.chessanalyser.recognizer.CnnRecognizer
                     .recognize(ctx, bitmap)
                 // Ha nem találtunk megbízhatóan sakktáblát, ne dobjunk zagyvát:
-                // őszinte hibaüzenet, hogy a felhasználó tisztább képet próbáljon.
+                // a jelenlegi tábla marad, csak hibaüzenet.
                 if (recog.boardConfidence < BOARD_CONF_MIN) {
-                    val ctx2 = getApplication<Application>()
+                    val msg = ctx.getString(R.string.recog_no_board)
                     withContext(Dispatchers.Main) {
-                        _state.value = _state.value.copy(
-                            recognizing = false,
-                            recognizeError = ctx2.getString(R.string.recog_no_board),
-                        )
+                        _state.value = _state.value.copy(recognizing = false, recognizeError = msg)
                     }
                     return@launch
                 }
-                // A felismert állás nem feltétlenül szabályos — szerkeszthető
-                // előnézetbe töltjük, ahol a felhasználó javíthatja.
                 // A CNN a képet fehér-szemszögűként olvassa (a kép teteje = 8. sor).
-                // Feltételezés: a befotózott táblán a LÉPŐ fél van alul. Ezért ha
-                // fekete lép, a képet fekete szemszögből kell értelmezni: a beolvasott
-                // táblát 180°-kal elforgatjuk (a bábuk a valós soraikra kerülnek),
-                // a nézet pedig fekete-szemszögre áll — így a szerkesztő a fotóval egyezik.
+                // A szabály: a LÉPŐ fél van alul. Ezért ha fekete lép, a beolvasott
+                // táblát 180°-kal elforgatjuk (a bábuk a valós soraikra kerülnek).
                 var board = placementToBoard(recog.placement)
-                // Bizonytalan mezők (display k = i*8+c) → tábla-mező ((7-i)*8+c).
                 var uncertain = buildSet {
                     for (i in 0 until 8) for (c in 0 until 8) {
                         if (recog.confidences[i * 8 + c] < 0.55f) add((7 - i) * 8 + c)
@@ -277,24 +296,25 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 val sourceImage = scaled.asImageBitmap()
                 withContext(Dispatchers.Main) {
+                    val cur = _state.value.edit
+                    if (cur == null) return@withContext  // közben bezárták
                     _state.value = _state.value.copy(
                         recognizing = false,
-                        edit = EditState(
+                        edit = cur.copy(
                             board = board,
-                            sideToMove = sideToMove,
+                            // A nézet a lépő szemszögére áll, hogy egyezzen a fotóval.
                             flipped = sideToMove == Piece.BLACK,
-                            brush = Piece.NONE,
                             sourceImage = sourceImage,
                             error = recog.reason,
                             uncertain = uncertain,
                         ),
                     )
                 }
-            } catch (e: Exception) {
-                android.util.Log.e("CnnRecog", "recognizeFromImage hiba", e)
+            } catch (ex: Exception) {
+                android.util.Log.e("CnnRecog", "recognizeFromImage hiba", ex)
                 _state.value = _state.value.copy(
                     recognizing = false,
-                    recognizeError = e.message ?: "Ismeretlen hiba",
+                    recognizeError = ex.message ?: "Ismeretlen hiba",
                 )
             }
         }
@@ -340,24 +360,14 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * „Ki lép" váltása = a tájolás vezérlője (a szabály: a lépő van alul).
-     * Váltáskor a táblát 180°-kal átfordítjuk (a bábuk a másik szemszög szerinti
-     * valós mezőikre kerülnek), és a nézet is a lépő szemszögére áll — így a
-     * szerkesztő továbbra is a fotóval egyezik.
+     * „Ki lép" beállítása: kinek a köre + a KÖVETKEZŐ felismerés tájolási tippje
+     * (a szabály: a lépő van alul). A meglévő táblát NEM forgatja — normál
+     * szerkesztésnél az rossz lenne; a tájolást a felismerés alkalmazza, és ha
+     * téves, a „Ki lép" átállítása után újra fel kell ismerni.
      */
     fun setEditSide(color: Int) {
         val e = _state.value.edit ?: return
-        if (color == e.sideToMove) return
-        val rotated = IntArray(64)
-        for (sq in 0..63) rotated[63 - sq] = e.board[sq]
-        _state.value = _state.value.copy(
-            edit = e.copy(
-                board = rotated,
-                sideToMove = color,
-                flipped = color == Piece.BLACK,
-                uncertain = e.uncertain.map { 63 - it }.toSet(),
-            ),
-        )
+        _state.value = _state.value.copy(edit = e.copy(sideToMove = color))
     }
 
     /**
