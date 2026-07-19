@@ -870,6 +870,24 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * FEN/PGN fájl betöltése (a rendszer fájlválasztójából). A fájl tartalmát
+     * beolvassa, majd az [importText] auto-detektál (FEN → tábla, PGN → játszma).
+     * Visszaad: "FEN" | "PGN" | null (hiba).
+     */
+    fun importFile(uri: android.net.Uri): String? {
+        return try {
+            val ctx = getApplication<Application>()
+            val text = ctx.contentResolver.openInputStream(uri)?.use {
+                it.readBytes().toString(Charsets.UTF_8)
+            } ?: return null
+            importText(text)
+        } catch (e: Exception) {
+            android.util.Log.e("Import", "Fájl-hiba", e)
+            null
+        }
+    }
+
     /** Részleges FEN kiegészítése teljessé (hiányzó mezők alapértelmezéssel). */
     private fun completeFen(fen: String): String {
         val p = fen.trim().split(Regex("\\s+"))

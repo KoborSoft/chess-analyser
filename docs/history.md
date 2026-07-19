@@ -414,3 +414,12 @@
 
 **Ellenőrzés:** telefonon a `4k3/8/8/8/8/8/4P3/4K3` FEN pontosan betöltött
 (fekete király e8, fehér gyalog e2, fehér király e1).
+
+## 2026-07-20 — Import: fájlból (string-beillesztés helyett)
+
+**Döntés:** A felhasználó fájlbetöltésben gondolkodik, nem stringekben. A
+string-beillesztő párbeszéd helyett a szerkesztőben „Fájl betöltése (PGN / FEN)"
+gomb → rendszer fájlválasztó (`OpenDocument`, `*/*`). A fájl tartalmát beolvassa
+(`importFile`), majd az `importText` auto-detektál: PGN → teljes játszma, FEN →
+a szerkesztő táblája. Telefonon igazolva: `test.pgn` (Ruy Lopez) betöltött a
+lépésgráffal; a FEN-út korábban igazolva.

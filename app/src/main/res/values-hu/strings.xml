@@ -32,9 +32,7 @@
     <string name="editor_recognize">Felismerés képről</string>
     <string name="editor_clear">Üres tábla</string>
     <string name="editor_load">Betöltés</string>
-    <string name="editor_paste">Beillesztés (FEN / PGN)</string>
-    <string name="paste_title">FEN vagy PGN beillesztése</string>
-    <string name="paste_hint">Illessz be egy FEN sztringet (egy állás) vagy egy PGN-t (teljes játszma).</string>
+    <string name="editor_loadfile">Fájl betöltése (PGN / FEN)</string>
     <string name="paste_fail">Nem sikerült értelmezni: nem érvényes FEN vagy PGN.</string>
     <string name="side_to_move">Ki lép</string>
     <!-- Rövid ikonfeliratok (az ikonok alá, pici betűvel) -->
