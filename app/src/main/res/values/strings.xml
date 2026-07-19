@@ -32,6 +32,10 @@
     <string name="editor_recognize">Recognise from image</string>
     <string name="editor_clear">Empty board</string>
     <string name="editor_load">Load</string>
+    <string name="editor_paste">Paste (FEN / PGN)</string>
+    <string name="paste_title">Paste FEN or PGN</string>
+    <string name="paste_hint">Paste a FEN string (a position) or a PGN (a full game).</string>
+    <string name="paste_fail">Could not parse: not a valid FEN or PGN.</string>
     <string name="side_to_move">Side to move</string>
     <!-- Short icon captions (tiny text under the icons) -->
     <string name="lbl_edit">Edit</string>

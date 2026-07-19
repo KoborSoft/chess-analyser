@@ -291,6 +291,7 @@ fun GameScreen(
             onFlip = viewModel::flipEditBoard,
             onClear = viewModel::clearEditBoard,
             onRecognize = viewModel::recognizeFromImage,
+            onImportText = viewModel::importText,
             onConfirm = viewModel::confirmEdit,
             onCancel = viewModel::cancelEdit,
         )

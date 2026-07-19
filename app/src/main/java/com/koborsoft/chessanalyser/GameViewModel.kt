@@ -829,6 +829,59 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     fun currentFen(): String = game.position.fen()
 
+    /**
+     * FEN vagy PGN szöveg importálása (beillesztés). FEN → a szerkesztő táblája
+     * feltöltődik (a felhasználó átnézheti, majd Betöltés). PGN → a teljes
+     * játszma betöltődik (a szerkesztő bezárul). Visszaad: "FEN" | "PGN" | null (hiba).
+     */
+    fun importText(text: String): String? {
+        val t = text.trim()
+        if (t.isEmpty()) return null
+        // PGN-jelek: fejléc-tagek ([Event ...]) vagy lépésszámok (1. e4 …).
+        val looksPgn = t.startsWith("[") || Regex("""(^|\s)\d+\.""").containsMatchIn(t)
+        if (looksPgn) {
+            return if (importPgn(t)) "PGN" else null
+        }
+        // FEN: az első '/'-t tartalmazó sor (részleges FEN-t kiegészítjük).
+        val fenLine = t.lineSequence().map { it.trim() }.firstOrNull { it.contains('/') }
+            ?: return null
+        return try {
+            val pos = Position.fromFen(completeFen(fenLine))
+            val e = _state.value.edit
+            if (e != null) {
+                _state.value = _state.value.copy(
+                    recognizeError = null,
+                    edit = e.copy(
+                        board = pos.board.copyOf(),
+                        sideToMove = pos.sideToMove,
+                        flipped = pos.sideToMove == Piece.BLACK,
+                        sourceImage = null,
+                        uncertain = emptySet(),
+                        error = null,
+                    ),
+                )
+            } else {
+                loadRecognizedPosition(pos)
+            }
+            "FEN"
+        } catch (ex: Exception) {
+            android.util.Log.e("Import", "FEN-hiba", ex)
+            null
+        }
+    }
+
+    /** Részleges FEN kiegészítése teljessé (hiányzó mezők alapértelmezéssel). */
+    private fun completeFen(fen: String): String {
+        val p = fen.trim().split(Regex("\\s+"))
+        val placement = p[0]
+        val side = p.getOrNull(1) ?: "w"
+        val castling = p.getOrNull(2) ?: "-"
+        val ep = p.getOrNull(3) ?: "-"
+        val half = p.getOrNull(4) ?: "0"
+        val full = p.getOrNull(5) ?: "1"
+        return "$placement $side $castling $ep $half $full"
+    }
+
     private fun engineName(): String {
         val elo = _state.value.config.engine.estimatedElo()
         return if (_state.value.usingStockfish) "Stockfish (~$elo)" else "Beépített motor (~$elo)"

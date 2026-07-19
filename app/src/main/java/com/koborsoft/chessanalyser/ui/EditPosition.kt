@@ -23,8 +23,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -72,6 +76,7 @@ fun PositionEditor(
     onFlip: () -> Unit,
     onClear: () -> Unit,
     onRecognize: (Uri) -> Unit,
+    onImportText: (String) -> String?,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -79,6 +84,14 @@ fun PositionEditor(
         ActivityResultContracts.GetContent(),
     ) { uri -> uri?.let(onRecognize) }
     var showImage by remember { mutableStateOf(false) }
+    var showPaste by remember { mutableStateOf(false) }
+
+    if (showPaste) {
+        PasteDialog(
+            onImportText = onImportText,
+            onDismiss = { showPaste = false },
+        )
+    }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
         // safeDrawingPadding: a tartalom ne kerüljön a státusz-/navigációs sáv
@@ -180,7 +193,7 @@ fun PositionEditor(
                 TextButton(onClick = onFlip) { Text(stringResource(R.string.flip_board)) }
             }
 
-            // Feltöltés: felismerés képről / üres tábla
+            // Feltöltés: felismerés képről / beillesztés (FEN/PGN) / üres tábla
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = { galleryLauncher.launch("image/*") },
@@ -194,6 +207,15 @@ fun PositionEditor(
                 OutlinedButton(onClick = onClear, enabled = !recognizing) {
                     Text(stringResource(R.string.editor_clear))
                 }
+            }
+            OutlinedButton(
+                onClick = { showPaste = true },
+                enabled = !recognizing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Filled.ContentPaste, null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.editor_paste))
             }
 
             // Állapot / hibák
@@ -234,6 +256,48 @@ fun PositionEditor(
             }
         }
     }
+}
+
+/**
+ * FEN/PGN beillesztő párbeszéd: szövegmező (a vágólapról előtöltve), majd
+ * betöltés. FEN → a szerkesztő táblája; PGN → teljes játszma.
+ */
+@Composable
+private fun PasteDialog(onImportText: (String) -> String?, onDismiss: () -> Unit) {
+    val clip = LocalClipboardManager.current
+    var text by remember { mutableStateOf(clip.getText()?.text ?: "") }
+    var error by remember { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.paste_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.paste_hint), style = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it; error = false },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 6,
+                )
+                if (error) {
+                    Text(
+                        stringResource(R.string.paste_fail),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (onImportText(text) == null) error = true else onDismiss()
+            }) { Text(stringResource(R.string.editor_load)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        },
+    )
 }
 
 @Composable

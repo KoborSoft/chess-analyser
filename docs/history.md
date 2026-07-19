@@ -396,3 +396,21 @@
   fél-harmonikus felett (pl. 92×0,59=54 > 44×0,72=32). A `Board.confidence` marad
   a nyers checker (a „nincs tábla" kapuhoz). Ellenőrizve: a működő Feladványok-
   képen nincs regresszió (period=92, helyes állás).
+
+## 2026-07-20 — Import: FEN/PGN beillesztés a szerkesztőben
+
+**Döntések:**
+
+- Az importra fókuszálunk (nem exportra), a betöltés (szerkesztő) felületén.
+  Új „Beillesztés (FEN / PGN)" gomb a szerkesztőben → párbeszéd egy
+  szövegmezővel (a vágólapról előtöltve). Auto-detektálás:
+  - **FEN** (string-kódolás, egy állás) → a szerkesztő táblája feltöltődik
+    (a felhasználó átnézheti, majd Betöltés). Részleges FEN (csak elhelyezés)
+    kiegészül alapértékekkel.
+  - **PGN** (teljes játszma) → a meglévő `importPgn`/`San.import` betölti a
+    játszmát, a szerkesztő bezárul.
+- A FEN a szerkesztő egyszerűsített állapotába tölt (tábla + ki lép); a
+  sáncjog/en passant nem őrződik meg (állásbeállításnál ritkán kell).
+
+**Ellenőrzés:** telefonon a `4k3/8/8/8/8/8/4P3/4K3` FEN pontosan betöltött
+(fekete király e8, fehér gyalog e2, fehér király e1).
