@@ -2,6 +2,8 @@ package com.koborsoft.chessanalyser.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -63,6 +65,7 @@ import androidx.core.content.FileProvider
 import com.koborsoft.chessanalyser.GraphNodeUi
 import java.io.File
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -350,20 +353,30 @@ private fun EvalBar(evalCp: Int?) {
 
 /** Bábuértékek az anyagi különbséghez: gyalog 1, huszár/futó 3, bástya 5, vezér 9. */
 private val PIECE_POINTS = intArrayOf(0, 1, 3, 3, 5, 9, 0)
-private val INITIAL_COUNTS = intArrayOf(0, 8, 2, 2, 2, 1, 1)
 
 /** A [by] színű fél által levett ellenfél-bábuk, csökkenő érték szerint. */
-private fun capturedPieces(position: Position, by: Int): List<Int> {
-    val remaining = IntArray(7)
+private fun typeCounts(position: Position, color: Int): IntArray {
+    val counts = IntArray(7)
     for (sq in 0..63) {
         val piece = position.pieceAt(sq)
-        if (piece != Piece.NONE && Piece.colorOf(piece) == -by) {
-            remaining[Piece.typeOf(piece)]++
+        if (piece != Piece.NONE && Piece.colorOf(piece) == color) {
+            counts[Piece.typeOf(piece)]++
         }
     }
+    return counts
+}
+
+/**
+ * A [by] fél által levett ellenséges bábuk — a játszma kiindulási állásához
+ * ([start]) képest, nem a szabványos kezdőállásból. Így betöltött (FEN/PGN)
+ * állásnál is helyes: induláskor nulla, onnantól gyűlik.
+ */
+private fun capturedPieces(position: Position, start: Position, by: Int): List<Int> {
+    val startCounts = typeCounts(start, -by)
+    val remaining = typeCounts(position, -by)
     val out = mutableListOf<Int>()
     for (type in intArrayOf(Piece.QUEEN, Piece.ROOK, Piece.BISHOP, Piece.KNIGHT, Piece.PAWN)) {
-        repeat((INITIAL_COUNTS[type] - remaining[type]).coerceAtLeast(0)) {
+        repeat((startCounts[type] - remaining[type]).coerceAtLeast(0)) {
             out.add(Piece.of(-by, type))
         }
     }
@@ -387,8 +400,8 @@ private fun materialScore(position: Position, color: Int): Int {
 @Composable
 private fun CompactTopRow(state: com.koborsoft.chessanalyser.UiState) {
     val tc = state.config.timeControl
-    val capturedByBlack = capturedPieces(state.position, Piece.BLACK)
-    val capturedByWhite = capturedPieces(state.position, Piece.WHITE)
+    val capturedByBlack = capturedPieces(state.position, state.startPosition, Piece.BLACK)
+    val capturedByWhite = capturedPieces(state.position, state.startPosition, Piece.WHITE)
     val whiteAdvantage = materialScore(state.position, Piece.WHITE) -
         materialScore(state.position, Piece.BLACK)
 
@@ -396,40 +409,68 @@ private fun CompactTopRow(state: com.koborsoft.chessanalyser.UiState) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(horizontalAlignment = Alignment.Start) {
-            Text(
-                text = capturedByBlack.joinToString("") { pieceChar(it) } +
-                    if (whiteAdvantage < 0) " +${-whiteAdvantage}" else "",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            if (tc != null) {
-                val active = !state.result.isOver &&
-                    state.position.sideToMove == Piece.BLACK
+        CapturedColumn(
+            modifier = Modifier.weight(1f),
+            pieces = capturedByBlack,
+            advantage = if (whiteAdvantage < 0) -whiteAdvantage else 0,
+            clockMs = if (tc != null) state.blackMs ?: tc.initialMs else null,
+            clockActive = !state.result.isOver && state.position.sideToMove == Piece.BLACK,
+            alignEnd = false,
+        )
+        StatusLine(state = state)
+        CapturedColumn(
+            modifier = Modifier.weight(1f),
+            pieces = capturedByWhite,
+            advantage = if (whiteAdvantage > 0) whiteAdvantage else 0,
+            clockMs = if (tc != null) state.whiteMs ?: tc.initialMs else null,
+            clockActive = !state.result.isOver && state.position.sideToMove == Piece.WHITE,
+            alignEnd = true,
+        )
+    }
+}
+
+/**
+ * Egy oldal levett bábui + pontelőnye + órája. A bábu-glyphek sora tördelhető
+ * (több sorba tör, nem vágódik le), a pontelőny (+N) külön, sosem-tördelt
+ * elem, így mindig látható.
+ */
+@Composable
+private fun CapturedColumn(
+    pieces: List<Int>,
+    advantage: Int,
+    clockMs: Long?,
+    clockActive: Boolean,
+    alignEnd: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (pieces.isNotEmpty()) {
                 Text(
-                    text = formatClock(state.blackMs ?: tc.initialMs),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
+                    text = pieces.joinToString("") { pieceChar(it) },
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+            }
+            if (advantage > 0) {
+                Text(
+                    text = " +$advantage",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    softWrap = false,
                 )
             }
         }
-        Spacer(Modifier.weight(1f))
-        StatusLine(state = state)
-        Spacer(Modifier.weight(1f))
-        Column(horizontalAlignment = Alignment.End) {
+        if (clockMs != null) {
             Text(
-                text = capturedByWhite.joinToString("") { pieceChar(it) } +
-                    if (whiteAdvantage > 0) " +$whiteAdvantage" else "",
-                style = MaterialTheme.typography.bodyMedium,
+                text = formatClock(clockMs),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = if (clockActive) FontWeight.Bold else FontWeight.Normal,
             )
-            if (tc != null) {
-                val active = !state.result.isOver &&
-                    state.position.sideToMove == Piece.WHITE
-                Text(
-                    text = formatClock(state.whiteMs ?: tc.initialMs),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
-                )
-            }
         }
     }
 }
@@ -655,7 +696,7 @@ private fun NewGameDialog(
                 }
 
                 Text(stringResource(R.string.time_control), fontWeight = FontWeight.Bold)
-                SegChoice(
+                ChipChoice(
                     options = (listOf<TimeControl?>(null) + TimeControl.PRESETS).map {
                         it to (it?.name ?: stringResource(R.string.no_clock))
                     },
@@ -949,6 +990,32 @@ fun <T> SegChoice(
                 onClick = { onSelect(value) },
                 shape = SegmentedButtonDefaults.itemShape(index = i, count = options.size),
             ) { Text(label) }
+        }
+    }
+}
+
+/**
+ * Tördelhető választó sok opcióhoz (pl. időkontroll): chip-ekre tör, több
+ * sorba, így nem préselődik össze egyetlen sorba. A kijelölt chip kitöltött.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun <T> ChipChoice(
+    options: List<Pair<T, String>>,
+    selected: T,
+    onSelect: (T) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        options.forEach { (value, label) ->
+            FilterChip(
+                selected = value == selected,
+                onClick = { onSelect(value) },
+                label = { Text(label) },
+            )
         }
     }
 }

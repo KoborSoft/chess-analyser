@@ -86,6 +86,8 @@ data class GraphNodeUi(
 
 data class UiState(
     val position: Position,
+    /** A játszma kiindulási állása (a fa gyökere) — a levett bábuk ehhez képest. */
+    val startPosition: Position = Position.initial(),
     val sanMoves: List<String> = emptyList(),
     val selectedSquare: Int? = null,
     val legalTargets: Set<Int> = emptySet(),
@@ -401,6 +403,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         syncFromTree()
         _state.value = _state.value.copy(
             position = game.position,
+            startPosition = tree.rootPosition,
             sanMoves = emptyList(),
             selectedSquare = null,
             legalTargets = emptySet(),
@@ -824,6 +827,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         syncFromTree()
         _state.value = UiState(
             position = game.position,
+            startPosition = tree.rootPosition,
             sanMoves = game.sanMoves,
             lastMove = game.moves.lastOrNull(),
             graphNodes = buildGraph(),
@@ -1010,6 +1014,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         )
         _state.value = UiState(
             position = game.position,
+            startPosition = tree.rootPosition,
             sanMoves = game.sanMoves,
             lastMove = game.moves.lastOrNull(),
             graphNodes = buildGraph(),
